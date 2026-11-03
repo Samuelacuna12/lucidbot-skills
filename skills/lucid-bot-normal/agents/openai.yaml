@@ -1,0 +1,6 @@
+interface:
+  display_name: "Lucid Bot normal con IA"
+  short_description: "Bots propios con IA, reservas, CRM, voz e integraciones"
+  default_prompt: "Usa $lucid-bot-normal para construir o revisar mi bot de Lucid y comprobar la operación real con pruebas documentadas."
+policy:
+  allow_implicit_invocation: true

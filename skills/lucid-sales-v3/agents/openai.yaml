@@ -1,0 +1,4 @@
+interface:
+  display_name: "Lucid Sales Ecommerce V3"
+  short_description: "Configura y prueba Ecommerce V3 con catálogo real"
+  default_prompt: "Usa $lucid-sales-v3 para configurar y validar una tienda de productos físicos con Ecommerce V3."

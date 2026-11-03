@@ -1,0 +1,794 @@
+{
+  "schema_version": 1,
+  "document_type": "self_contained_lucid_sales_v3_knowledge",
+  "language": "es",
+  "title": "Bots de ecommerce con plantilla V3",
+  "scope": {
+    "product": "Ecommerce v3 Pro - LucidSales",
+    "official_template_id": "791284",
+    "intended_business": "Productos físicos",
+    "not_a_native_api_or_import_payload": true
+  },
+  "coverage": {
+    "skool_indexed_lessons": 74,
+    "skool_written_lesson_cards_reviewed": 31,
+    "skool_all_videos_watched": false,
+    "additional_selected_video_frames": {
+      "bundles": [
+        "00:35"
+      ],
+      "variants": [
+        "01:38",
+        "02:20",
+        "02:49"
+      ]
+    },
+    "academy_separate_collection": {
+      "recordings": 20,
+      "study_method": "Transcripciones completas y pantallas seleccionadas; no reproducción continua."
+    }
+  },
+  "sections": [
+    {
+      "id": "introduction",
+      "title": "Introducción",
+      "content_markdown": "# Bots de ecommerce con plantilla V3\n\nGuía de instalación, catálogo, conversación y validación de pedidos con **Ecommerce v3 Pro - LucidSales**. Está destinada a productos físicos. No sustituye un bot general de servicios, citas o reservas.\n\nLa guía explica qué configurar, qué comprobar y qué está pendiente de verificación en cada cuenta. No es una certificación de funcionamiento ni una copia de los videos del curso. La plantilla oficial referenciada es [Ecommerce v3 Pro, ficha 791284](https://panel.lucidbot.co/store/template.php?id=791284)."
+    },
+    {
+      "id": "section-01",
+      "title": "Antes de empezar",
+      "content_markdown": "| Dato necesario | Qué debe quedar decidido |\n|---|---|\n| Destino | Cuenta, tienda, bot, instalación existente y permisos autorizados |\n| País y canal | País, moneda, zona horaria, número comercial, idioma y responsable del canal |\n| Oferta | Productos, atributos, combinaciones permitidas, packs, precios y promociones autorizadas |\n| Inventario | Fuente, fecha, unidades físicas, reservas y tratamiento de desconocido/agotado |\n| Medios | Imágenes verificadas, relación con cada referencia y derechos de uso |\n| Venta y entrega | Datos requeridos, cobertura, envío, pagos, cambios y garantías |\n| Atención humana | Responsables, horario, asignación, avisos y devolución al bot |\n| Landing | Sistema donde se crea el pedido, integración disponible y evento real que lo notifica |\n| Prueba | Contacto y pedido de prueba controlados, límites de pago y despacho |\n\nRecuperar esta información de los activos y la conversación existentes antes de pedirla otra vez. Nunca publicar claves, contactos, tablas de inventario ni identificadores privados en GitHub."
+    },
+    {
+      "id": "section-02",
+      "title": "Resultado buscado",
+      "content_markdown": "Una compra de prueba debe dejar un pedido persistido con identidad y total correctos, entrar una sola vez al flujo V3 adecuado y producir una respuesta comprobada en el canal. La selección de producto y el pedido existente deben conservarse durante la conversación; una actualización no debe crear otra compra.\n\n```mermaid\nflowchart LR\n    L[Landing] --> O[Pedido persistido]\n    O --> I[Integración de pedidos]\n    I --> V[Flujo de confirmación V3]\n    V --> C[Canal conectado]\n    C --> R[Respuesta y estado comprobados]\n    V --> CRM[Pedido y oportunidad correlacionados]\n```\n\nEste diagrama describe el recorrido a validar. Una flecha no equivale a una integración ya configurada."
+    },
+    {
+      "id": "section-03",
+      "title": "Cómo leer el estado",
+      "content_markdown": "- **Documentado:** una fuente describe el procedimiento.\n- **Configurado:** el cambio se guardó y se volvió a leer en la cuenta correcta.\n- **Probado:** una entrada produjo el resultado esperado, comprobado en los objetos y el canal.\n- **Activo:** la ruta está habilitada para su alcance de producción autorizado.\n\nEl estado se registra por función. Tener catálogo configurado y dos flujos activos no prueba que una compra de la landing llegue al bot.\n\nEsta referencia distingue hechos observados de comprobaciones necesarias. Su evidencia y enlaces están en [evidence.md](../skills/lucid-sales-v3/references/evidence.md). La secuencia siguiente es una guía de implementación; no afirma que los controles de cada cuenta o versión sean idénticos."
+    },
+    {
+      "id": "section-04",
+      "title": "Instalación e identidad",
+      "content_markdown": "- **Escrito en la ficha de instalación:** Store de Lucid Bot → Ecommerce v3 Pro → Install → seleccionar el bot → Install del destino. Para otro país, la ficha indica instalar primero V3 y después la adaptación de país sobre el mismo bot. Comprobar disponibilidad y compatibilidad actual antes de ejecutarlo.\n- **Observado en una cuenta:** carpeta LucidSales (V3 Pro), versión visible V3-26.10.14 y flujos principales existentes. Este hallazgo demuestra que una instalación existente se debe inspeccionar, no reinstalar por defecto. No es la versión mínima exigida por esta skill.\n- **Pendiente por cuenta:** tienda/bot exactos, permisos, canal y vinculación. Lucid Bot y Lucid Sales son productos distintos. Account ID, ID de bot, contacto, WABA y token tampoco se intercambian.\n- La ficha de conexión Lucid Bot ↔ Lucid Sales describe el resultado, pero su copia escrita no contiene el formulario técnico. Inspeccionar la interfaz autorizada o el video correspondiente; no inventar un token, endpoint ni una secuencia de clics."
+    },
+    {
+      "id": "section-05",
+      "title": "Configuración comercial e IA",
+      "content_markdown": "Completar empresa, descripción, dirección comercial, contacto y nombre del asistente. Configurar métodos reales de pago, políticas, preguntas frecuentes generales y postventa. En Lucid Sales → Lucid Bot → Modelo IA se documenta el acceso al comparativo y selección del modelo; comprobar información vigente, saldo y comportamiento efectivo antes de escoger. No reutilizar límites ni recomendaciones numéricas del curso.\n\nLas reglas adicionales complementan a la plantilla. Antes de modificar contratos internos, localizar qué agente responde, qué herramientas tiene y qué flujos ejecutan. Separar generación de texto del envío y de la creación del pedido. Las funciones IA necesitan vínculo real al agente, parámetros y ruta de éxito/fallo.\n\nAgrupar entradas y dividir salidas son ajustes diferentes. Probar una ráfaga producto/talla/ciudad, una corrección posterior y una conversación nueva para comprobar limpieza y conservación del contexto. Si se usa contenido dinámico, preservar acciones y campos al dividir el texto. La detección «contiene una llave» no valida JSON."
+    },
+    {
+      "id": "section-06",
+      "title": "Catálogo, packs y medios",
+      "content_markdown": "Orden de revisión: catálogo existente → identidad por variante → precio/moneda → ofertas vendibles → proveedor/stock → medios → reglas conversacionales. No crear productos duplicados para remediar una coincidencia de nombre incompleta.\n\nSeparar atributos independientes: familia, material, diseño, color, talla y referencia. «Unicolor» no decide si una prenda es algodón o licra. La imagen permite proponer una referencia visible; la composición, el SKU, el precio y la existencia provienen de la ficha verificada.\n\nMantener una tabla privada con identificadores del origen y destino. Un producto comercial por pack puede representar varios componentes; no copiar su identificador como si fuera una referencia de una prenda. Si una unidad de inventario contiene tres pares, una oferta de seis pares consume dos unidades de esa referencia, cuando ese modelo de inventario esté confirmado.\n\n### Semántica del precio\n\nLa revisión de fotogramas registra dos configuraciones históricas distintas:\n\n| Interfaz del curso | Observación | Límite |\n|---|---|---|\n| Bundle de producto simple, 00:35 | Cantidad 2 y precio exterior 140.000 | No se observó un checkout guardado |\n| Bundle de variantes, 02:20 y 02:49 | Cantidad 2, oferta nominal 120.000, precios de variantes 60.000 | Sustenta precio por componente en ese administrador; versión actual y redondeo por comprobar |\n\nPor tanto, no ingresar el total de un pack en un campo unitario sin verificar cómo lo consume la versión actual. Comparar cantidad comercial, composición, precio persistido, total mostrado y total finalmente creado. Si dividir el total no produce un decimal admitido, documentar la discrepancia; no cambiar el precio comercial ni presentar un total aproximado como exacto.\n\nUn SKU puede estar repetido entre bundles del mismo componente en una plataforma, pero el manifiesto local guarda cada componente una sola vez y lo referencia desde varias ofertas. [catalog-contract.md](../skills/lucid-sales-v3/references/catalog-contract.md) describe esa normalización; no implica que Lucid imponga unicidad global de SKU.\n\n### Disponibilidad y fotografías\n\nSeparar `desconocida`, `verificada` y `asumida por política explícita`. No fabricar cantidades físicas. Permitir vender sin seguimiento de inventario no sincroniza almacenes. Verificar fecha, fuente, almacén y reserva antes de prometer stock comprobado.\n\nRelacionar imagen de conjunto, individual y detalle con la referencia y material autorizados. Las imágenes generadas deben ser fieles y revisadas; no inventar textura, composición o diseño que el producto no tenga. Nombrar cada archivo de forma identificable, revisar recortes y texto alternativo y comprobar su presentación en el canal. Límites de galería se consultan en la interfaz actual; el límite observado en una cuenta no es universal."
+    },
+    {
+      "id": "section-07",
+      "title": "Canales, entrada y notificaciones",
+      "content_markdown": "Inspeccionar Ajustes → Canales → WhatsApp en el bot destino. La ficha documenta Gestionar → Enlaces útiles → Plantilla de Mensaje; el alta del canal, requisitos de Meta y elegibilidad concreta deben verificarse en la cuenta. Conexión, entrada al Inbox, arranque del flujo y respuesta son comprobaciones separadas.\n\nLa creación histórica de plantillas también se accede desde el Administrador de WhatsApp. Elegir cuenta, nombre, idioma, categoría vigente, encabezado, cuerpo, ejemplos de variables y botones pertinentes. Consultar estado y sincronizar en Lucid si hace falta. No prometer plazo de aprobación ni usar categorías históricas como reglas actuales.\n\nEl cuerpo revisado de la lección «Mapeo de plantillas» solo contiene el título: su secuencia técnica está **pendiente de verificar**. En la implementación, observar el bloque correspondiente, vincular cada variable a campos existentes y enviar una prueba autorizada al destinatario controlado. Una muestra para aprobación no es el valor real del contacto. Un aviso de Inbox, una alerta de WhatsApp y un mensaje al cliente tienen destinos distintos."
+    },
+    {
+      "id": "section-08",
+      "title": "Pedidos y puente de landing",
+      "content_markdown": "Flujos observados en una cuenta: `Flujo Principal - LucidSales` y `Confirmacion landing - LucidSales/Shopify/LandingPage`. También se observó una selección del flujo de confirmación en Lucid Sales. No copiar IDs de otro bot: resolver el flujo que realmente pertenece al destino.\n\nLa conexión Shopify mostraba estado conectado y opción Importar productos. La app estaba instalada, pero su panel incrustado no cargaba los controles. No se verificaron el interruptor de sincronización de pedidos ni el evento hacia V3. **Instalar, importar, leer pedidos y recibir un webhook son operaciones distintas.**\n\n**Documentación oficial, no prueba de la cuenta:** abrir la app Lucid Bot en Shopify, entrar en Settings, sincronizar productos, introducir la clave del bot en el campo seguro, actualizar conexión/flujos, seleccionar el flujo, habilitar Sync Orders y guardar. El pedido necesita teléfono; Orders permite revisar resultado y reintento. [Guía oficial Shopify](https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot). La [ficha de la app](https://apps.shopify.com/lucid-bot?locale=es) confirma transferencia de pedidos, ejecución de flujo y consulta de estado. La selección del flujo V3 correcto y su comportamiento se verifican en el destino.\n\nProcedimiento de aceptación del puente, aún no una receta de endpoints:\n\n1. Identificar dónde nace el pedido de la landing, su ID persistente y el total/estado real.\n2. Observar la integración y evento soportados en esa versión. Registrar campos recibidos y errores sin exponer datos personales en el repositorio.\n3. Mapear pedido, contacto, moneda, líneas, variante, cantidad de packs y composición. Diferenciar teléfono del canal de teléfono de entrega.\n4. Resolver el flujo de confirmación y canal adecuados. Evitar crear otra orden cuando ya existe una del origen.\n5. Correlacionar por tienda/origen/ID de pedido. Comprobar que la protección contra duplicados funciona también con eventos repetidos o concurrentes; una etiqueta o una lectura previa no demuestra exclusión mutua.\n6. Ejecutar una compra controlada, verificar el pedido en origen, el evento, campos y oportunidad destino, la respuesta del bot y los importes. Mantener despacho/pago real dentro del alcance autorizado.\n7. Repetir el mismo evento y una actualización del pedido. Verificar ausencia de pedido, cobro o mensaje duplicado no deseado.\n\nSi faltan canal, landing o acceso al panel, entregar catálogo/configuración preparados y nombrar el puente pendiente. No sustituirlo por un enlace `wa.me` y llamarlo sincronización de compras."
+    },
+    {
+      "id": "section-09",
+      "title": "CRM, pago, garantías y humano",
+      "content_markdown": "La ficha CRM describe áreas de leads, carritos, pedidos de chat/landing, logística, garantías, novedades y pagos. Sus automatismos son afirmaciones del curso hasta observar cada transición en el bot destino. Caliente no significa comprador; recuperar un carrito no se atribuye sin pedido/correlación comprobados.\n\nEstados de control documentados: pendiente de confirmación, error al subir, corregido por subir y subido a Lucid Sales. En pagos: esperando comprobante, recibido y confirmado. Aplicar el estado según el hecho verificado. No reintentar una escritura incierta sin consultar si la orden ya existe.\n\nPara garantías: identificar pedido/producto y motivo, guardar evidencia pertinente, abrir el caso y asignar responsable. El plazo y remedio salen de la política vigente del negocio, no de ejemplos de clase. La ficha muestra Garantía → En procesamiento → Resuelta, con gestión humana; no configurar aprobación automática porque una IA reconozca la palabra.\n\nTransferir al humano, asignar asesor, detener seguimientos y enviar aviso son acciones diferentes. Probarlas y el retorno al bot. Después de la intervención humana, reconciliar datos estructurados y resumen pertinente para no recuperar una selección antigua."
+    },
+    {
+      "id": "section-10",
+      "title": "Integraciones opcionales",
+      "content_markdown": "El texto de la lección Hoko observado documenta Ajustes → Tienda → Integraciones → Hoko → credenciales en su interfaz → Conectar; después Productos → Editar producto → Integración seleccionada → Hoko → Seleccione el producto. No demuestra mapeo por variante, dirección/frecuencia de stock ni envío automático. Usar solo si el usuario eligió Hoko y la correspondencia real es comprobable.\n\nOtras integraciones presentes en el índice no se convierten en pasos conocidos por su título. Ads requiere vínculo real anuncio/producto; eventos de compra exigen un criterio de venta comprobado y deduplicación. No activar campañas o envíos por el solo hecho de configurar el catálogo."
+    },
+    {
+      "id": "section-11",
+      "title": "Conectar la compra Shopify con V3: receta oficial y comprobación",
+      "content_markdown": "La documentación del proveedor describe esta secuencia histórica:\n\n1. Abrir la app **Lucid Bot** instalada en Shopify y su apartado **Settings**.\n2. Sincronizar los productos desde esa aplicación.\n3. Introducir la clave API del bot destino en el campo seguro.\n4. Pulsar **Connect to Lucid Bot & Refresh flows**.\n5. Elegir el flujo que debe recibir el pedido; comprobar su identidad V3.\n6. Habilitar **Sync Orders** y pulsar **Save**.\n7. Comprobar teléfono del cliente y resultado en **Orders** antes de un reintento.\n\nFuente: [guía oficial del proveedor](https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot). Contrastar nombres y disponibilidad en la interfaz actual.\n\nLa [ficha oficial de Shopify App Store](https://apps.shopify.com/lucid-bot?locale=es) describe envío de pedidos al bot, ejecución de un flujo de confirmación y consulta del resultado con posibilidad de reenvío. Es distinto de importar el catálogo desde Lucid Sales.\n\n**Comprobación propia propuesta:** revisar los valores guardados, crear un pedido de prueba autorizado, anotar su ID de origen y verificar recepción, mapeo, flujo y mensaje. Repetir el evento y una modificación para comprobar deduplicación y actualización del mismo pedido. No marcar un pedido real como pagado sin pago verificado para imitar una demostración. No activar logística real como efecto secundario de la prueba.\n\nSi el panel está en blanco, conservar la instalación y registrar el bloqueo: no afirmar que Sync Orders está habilitado ni reinstalar a ciegas. Si la landing usa otro sistema, esta receta no aplica automáticamente: identificar la integración oficial de ese origen y comprobar su contrato antes de describir endpoints o automatismos."
+    },
+    {
+      "id": "section-12",
+      "title": "Pruebas y cierre de la implementación",
+      "content_markdown": "Cada fila empieza **pendiente**. Guardar por ejecución: entrada, resultado esperado, respuesta real, campos pertinentes, referencia del objeto comprobado, fecha/canal y resultado. Conservar los identificadores y datos personales en el registro privado del proyecto, nunca en el repositorio público.\n\n| Caso | Comprobación que decide el resultado |\n|---|---|\n| Saludo nuevo y contacto existente | Una sola entrada al vendedor; contexto conservado cuando corresponde |\n| Producto por nombre y cambio a otro | Catálogo/reglas/medios del producto nuevo; no arrastre de selección antigua |\n| Algodón frente a licra; talla/color/referencia | Coincide la identidad estructurada; no deducción solo visual |\n| Pack permitido y cantidad no ofrecida | Total y composición exactos; no venta individual si solo se ofrecen packs |\n| Precio no divisible entre componentes | Total persistido y total del pedido coinciden; discrepancia registrada, sin redondeo supuesto |\n| Upsell rechazado/aceptado | Rechazo no agrega línea; aceptación suma oferta/cantidad correctas |\n| Agotado, desconocido y disponibilidad manual | Tres respuestas distintas; no presentar dato asumido como inventario en tiempo real |\n| Imagen conocida y ambigua | Foto correcta; aclaración antes de asignar referencia incierta |\n| Varios mensajes seguidos, pregunta y corrección | Agrupación no pierde cambio, no duplica salida, conserva datos confirmados |\n| Dato de entrega incompleto | Pide solo faltante; no crea operación incompleta ni confirma envío |\n| Pedido creado en landing | ID de origen correlacionado, flujo correcto, mensaje observado en destino |\n| Mismo evento dos veces | No duplica pedido ni acciones comerciales; comprobar protección real |\n| Timeout después de crear pedido | Consulta antes de reintentar; no trata incertidumbre como fallo definitivo |\n| Comprobante de prueba recibido | Permanece pendiente hasta validación efectiva; no marca pagado por imagen |\n| Petición de garantía | Caso ligado a pedido/producto y responsable; política real, sin aprobación inventada |\n| Humano, baja y retorno al bot | Cambia atención/asignación, detiene rutas incompatibles, retoma datos actuales |\n| Notificación interna | Llega al responsable correcto; cliente no recibe información interna |\n| Error de IA/integración | Salida controlada; error no se interpreta como producto inexistente o stock cero |"
+    },
+    {
+      "id": "section-13",
+      "title": "Ejemplo normal — diseñado, no ejecutado en Lucid",
+      "content_markdown": "Una tienda ficticia vende una oferta de seis prendas de algodón por EUR 42.00. El cliente elige tres negras M y tres azules L dentro de esa oferta. La suma es seis; ambas variantes comparten material y diseño permitidos. Declina las medias. El resumen conserva producto, composición, total y entrega. Después de confirmación, se verifica una sola orden y se informa su estado real. El validador local incluye un ejemplo equivalente, pero no envía mensajes ni crea la orden."
+    },
+    {
+      "id": "section-14",
+      "title": "Ejemplo de error — reproducido localmente",
+      "content_markdown": "Una oferta declara seis artículos a EUR 10.00 total y precio unitario EUR 1.67. El cálculo da EUR 10.02. El validador devuelve `pack_total_mismatch`; no lo corrige ni aprueba automáticamente. Para la cuenta real, revisar semántica y precisión del campo, corregir la configuración permitida y volver a probar el total del pedido. No modificar el precio autorizado solo para que la división cuadre."
+    },
+    {
+      "id": "section-15",
+      "title": "Formato de cierre",
+      "content_markdown": "```text\nAlcance y cuenta destino: registro privado\nPlantilla y versión observadas:\nCatálogo: diseñado / configurado / probado\nFuente de disponibilidad: verificada / desconocida / política manual explícita\nCanal: no conectado / conectado / recepción y envío comprobados\nPuente de pedidos: diseñado / configurado / probado\nIA, humano, CRM y avisos: estado y evidencia por función\nCasos ejecutados y fallidos:\nActivación y alcance efectivo:\nPendiente concreto y siguiente acción:\n```\n\nNo agrupar todo como «listo» si solo se guardaron los flujos. No enviar una compra de prueba a logística real ni marcar un pedido real pagado sin pago verificado para provocar un evento. Usar un entorno o pedido de prueba separado dentro de la autorización disponible."
+    },
+    {
+      "id": "section-16",
+      "title": "Herramienta local para auditar el catálogo",
+      "content_markdown": "`scripts/validate_catalog.py` es una comprobación offline. **Este JSON no es un payload ni un importador de Lucid/Shopify/Hoko.** Los nombres siguientes son propios de esta herramienta, no campos nativos descubiertos en esas plataformas.\n\nEjemplo completo: [assets/catalog-fictional.json](../skills/lucid-sales-v3/assets/catalog-fictional.json). Todos sus datos, nombres, códigos, precios y cantidades son ficticios. No contiene contactos ni referencias externas reales."
+    },
+    {
+      "id": "section-17",
+      "title": "Estructura",
+      "content_markdown": "| Campo | Tipo y significado |\n|---|---|\n| `schema_version` | Entero 1 |\n| `currency` | Texto de tres letras mayúsculas; una moneda por manifiesto |\n| `products` | Productos lógicos y sus componentes únicos |\n| `product.id/name/item_unit` | Identidad propia, nombre y unidad física: por ejemplo prenda o par |\n| `sell_mode` | `packs_only` o `units_and_packs`; es una decisión comercial de entrada |\n| `allowed_quantities` | Cantidades de artículos permitidas por oferta; no obliga a crear todas las combinaciones |\n| `variants` | `id`, `sku` como texto, `options` de texto, `inventory_unit_size`, `availability` |\n| `inventory_unit_size` | Número de artículos físicos en una unidad indivisible del inventario de ese componente |\n| `availability` | `unknown`, `verified`, `assumed`; el script no comprueba que la declaración sea cierta |\n| `offers` | Ofertas comerciales: producto, variantes elegibles, cantidad por pack y precio |\n| `allow_mixed` | Permite varias variantes en la misma composición |\n| `same_options` | Atributos que deben coincidir entre las variantes elegidas, como material/diseño |\n| `price_mode` | `pack_total` o `per_component`; describe el campo que se está auditando |\n| `price_amount` | Decimal como cadena; precio del pack o del componente según el modo |\n| `advertised_pack_total` | Total comercial autorizado de un pack, como cadena decimal |\n| `upsells` | Producto de origen y oferta adicional existente; `optional: true` |\n| `quotes` | Oferta, número de packs, variantes/cantidades físicas y total cotizado |\n\nUna variante normalizada se guarda una vez; varias ofertas pueden referenciarla. Por eso duplicar su SKU en este manifiesto es un error. Esto no prohíbe que una plataforma repita una referencia dentro de administradores diferentes de bundles.\n\nSi los precios dependen de la variante, dividir las ofertas/grupos de precio en el manifiesto. La versión 1 usa un precio uniforme por oferta; no representa reglas arbitrarias de precio mixto, envío, impuestos, descuentos acumulados ni multicurrency. Validar esos conceptos en el checkout real con su contrato específico."
+    },
+    {
+      "id": "section-18",
+      "title": "Cálculos",
+      "content_markdown": "Para `per_component`: `price_amount × items_per_pack = advertised_pack_total`. Para `pack_total`: ambos importes deben coincidir. Se usa aritmética decimal exacta, sin tolerancia ni redondeo automático.\n\nEn una cotización: suma de cantidades seleccionadas = artículos por pack × número de packs. El total es precio por pack × número de packs. Si una referencia almacena tres pares indivisibles, la cantidad seleccionada debe ser múltiplo de tres. «Seis pares» no se convierte en «seis paquetes de tres pares»."
+    },
+    {
+      "id": "section-19",
+      "title": "Ejecutar y entender el resultado",
+      "content_markdown": "Desde la carpeta `skills/lucid-sales-v3` del repositorio:\n\n```sh\npython3 scripts/validate_catalog.py assets/catalog-fictional.json\npython3 -m unittest discover -s scripts -p 'test_*.py'\n```\n\nSalida JSON: `ok`, `errors`, `warnings`, `counts`, `scope`. Códigos de proceso: 0 coherente, 1 errores de contenido, 2 archivo/JSON ilegible. El ejemplo coherente tiene 2 productos, 4 componentes y 5 ofertas; muestra avisos de stock no verificado porque sus existencias son desconocidas.\n\nErrores como `pack_total_mismatch`, `composition_quantity`, `variant_wrong_product`, `incompatible_options` o `fractional_inventory_unit` identifican el desacuerdo concreto. Corregir los datos/autorización o el mapeo, no ocultar el error con un dato ficticio. Precio correcto en JSON no demuestra que se haya guardado igual en Lucid.\n\nEl validador no accede a internet, modifica archivos de entrada, valida titularidad de códigos, prueba fotos, ejecuta IA, confirma stock ni crea un pedido. Ejecutarlo con datos privados requiere conservar esos archivos fuera de la publicación pública.\n\n### Ejemplo íntegro ficticio\n\n```json\n{\n  \"schema_version\": 1,\n  \"data_kind\": \"fictional_example_not_for_import\",\n  \"currency\": \"EUR\",\n  \"products\": [\n    {\n      \"id\": \"demo-boxer\",\n      \"name\": \"Bóxer de ejemplo\",\n      \"item_unit\": \"prenda\",\n      \"sell_mode\": \"packs_only\",\n      \"allowed_quantities\": [\n        3,\n        6,\n        12\n      ],\n      \"variants\": [\n        {\n          \"id\": \"demo-cotton-black-m\",\n          \"sku\": \"DEMO-COT-NEG-M\",\n          \"options\": {\n            \"material\": \"algodón\",\n            \"design\": \"unicolor\",\n            \"color\": \"negro\",\n            \"size\": \"M\"\n          },\n          \"inventory_unit_size\": 1,\n          \"availability\": \"unknown\"\n        },\n        {\n          \"id\": \"demo-cotton-blue-l\",\n          \"sku\": \"DEMO-COT-AZU-L\",\n          \"options\": {\n            \"material\": \"algodón\",\n            \"design\": \"unicolor\",\n            \"color\": \"azul\",\n            \"size\": \"L\"\n          },\n          \"inventory_unit_size\": 1,\n          \"availability\": \"unknown\"\n        },\n        {\n          \"id\": \"demo-lycra-black-m\",\n          \"sku\": \"DEMO-LIC-NEG-M\",\n          \"options\": {\n            \"material\": \"licra\",\n            \"design\": \"unicolor\",\n            \"color\": \"negro\",\n            \"size\": \"M\"\n          },\n          \"inventory_unit_size\": 1,\n          \"availability\": \"unknown\"\n        }\n      ]\n    },\n    {\n      \"id\": \"demo-socks\",\n      \"name\": \"Medias de ejemplo\",\n      \"item_unit\": \"par\",\n      \"sell_mode\": \"packs_only\",\n      \"allowed_quantities\": [\n        3,\n        6\n      ],\n      \"variants\": [\n        {\n          \"id\": \"demo-socks-black\",\n          \"sku\": \"DEMO-MED-NEG-3P\",\n          \"options\": {\n            \"color\": \"negro\",\n            \"size\": \"única\"\n          },\n          \"inventory_unit_size\": 3,\n          \"availability\": \"unknown\"\n        }\n      ]\n    }\n  ],\n  \"offers\": [\n    {\n      \"id\": \"demo-cotton-3\",\n      \"product_id\": \"demo-boxer\",\n      \"items_per_pack\": 3,\n      \"item_unit\": \"prenda\",\n      \"variant_ids\": [\n        \"demo-cotton-black-m\",\n        \"demo-cotton-blue-l\"\n      ],\n      \"allow_mixed\": true,\n      \"same_options\": [\n        \"material\",\n        \"design\"\n      ],\n      \"price_mode\": \"per_component\",\n      \"price_amount\": \"8.00\",\n      \"advertised_pack_total\": \"24.00\"\n    },\n    {\n      \"id\": \"demo-cotton-6\",\n      \"product_id\": \"demo-boxer\",\n      \"items_per_pack\": 6,\n      \"item_unit\": \"prenda\",\n      \"variant_ids\": [\n        \"demo-cotton-black-m\",\n        \"demo-cotton-blue-l\"\n      ],\n      \"allow_mixed\": true,\n      \"same_options\": [\n        \"material\",\n        \"design\"\n      ],\n      \"price_mode\": \"per_component\",\n      \"price_amount\": \"7.00\",\n      \"advertised_pack_total\": \"42.00\"\n    },\n    {\n      \"id\": \"demo-lycra-3\",\n      \"product_id\": \"demo-boxer\",\n      \"items_per_pack\": 3,\n      \"item_unit\": \"prenda\",\n      \"variant_ids\": [\n        \"demo-lycra-black-m\"\n      ],\n      \"allow_mixed\": false,\n      \"same_options\": [],\n      \"price_mode\": \"pack_total\",\n      \"price_amount\": \"27.00\",\n      \"advertised_pack_total\": \"27.00\"\n    },\n    {\n      \"id\": \"demo-socks-3\",\n      \"product_id\": \"demo-socks\",\n      \"items_per_pack\": 3,\n      \"item_unit\": \"par\",\n      \"variant_ids\": [\n        \"demo-socks-black\"\n      ],\n      \"allow_mixed\": false,\n      \"same_options\": [],\n      \"price_mode\": \"pack_total\",\n      \"price_amount\": \"12.00\",\n      \"advertised_pack_total\": \"12.00\"\n    },\n    {\n      \"id\": \"demo-socks-6\",\n      \"product_id\": \"demo-socks\",\n      \"items_per_pack\": 6,\n      \"item_unit\": \"par\",\n      \"variant_ids\": [\n        \"demo-socks-black\"\n      ],\n      \"allow_mixed\": false,\n      \"same_options\": [],\n      \"price_mode\": \"pack_total\",\n      \"price_amount\": \"21.00\",\n      \"advertised_pack_total\": \"21.00\"\n    }\n  ],\n  \"upsells\": [\n    {\n      \"source_product_id\": \"demo-boxer\",\n      \"target_offer_id\": \"demo-socks-3\",\n      \"optional\": true\n    }\n  ],\n  \"quotes\": [\n    {\n      \"offer_id\": \"demo-cotton-6\",\n      \"pack_count\": 1,\n      \"selections\": [\n        {\n          \"variant_id\": \"demo-cotton-black-m\",\n          \"quantity\": 3\n        },\n        {\n          \"variant_id\": \"demo-cotton-blue-l\",\n          \"quantity\": 3\n        }\n      ],\n      \"quoted_total\": \"42.00\"\n    },\n    {\n      \"offer_id\": \"demo-socks-6\",\n      \"pack_count\": 2,\n      \"selections\": [\n        {\n          \"variant_id\": \"demo-socks-black\",\n          \"quantity\": 12\n        }\n      ],\n      \"quoted_total\": \"42.00\"\n    }\n  ]\n}\n```"
+    },
+    {
+      "id": "section-20",
+      "title": "Fuentes y alcance del estudio",
+      "content_markdown": ""
+    },
+    {
+      "id": "section-21",
+      "title": "Cobertura real del paquete",
+      "content_markdown": "El material base Skool, «Plantilla de Ecommerce con LucidBot y Lucid Sales», tenía **74 lecciones en el índice** y **31 fichas escritas revisadas** en el registro consultado. Algunas fichas solo contienen su título; no acreditan un procedimiento. La revisión adicional de dos lecciones de bundles/variantes contrastó fotogramas seleccionados, no videos completos ni audio transcrito. Este paquete no afirma haber estudiado los 74 videos.\n\n**Lucid Academy es otra formación:** 20 grabaciones estudiadas mediante transcripciones completas y pantallas seleccionadas según su registro consolidado. No es reproducción continua de todos los videos y no aumenta la cobertura de Skool. Los conceptos generales aplicados aquí proceden principalmente de clases 1–8 (datos, canal, flujos, secuencias, CRM, garantías), 9–11 (agentes, herramientas, visión y contexto), 13–18 (operaciones externas, validación, atención humana y errores).\n\nLas observaciones de implementación usadas para detectar errores se han abstraído. No se incluyen identidades de tiendas/clientes, contactos, cantidades de stock, claves, capturas privadas, identificadores de bots/productos ni archivos del curso. Las cifras, productos y códigos del ejemplo ejecutable son ficticios."
+    },
+    {
+      "id": "section-22",
+      "title": "Cuatro niveles que no se deben mezclar",
+      "content_markdown": "| Nivel | Qué permite afirmar | Qué no acredita |\n|---|---|---|\n| Documento del proveedor | El procedimiento o capacidad descritos por esa fuente | Vigencia exacta de todos los controles de una cuenta |\n| Pantalla observada | El control, valor o estado visible en esa revisión | Resultado externo de guardarlo o activarlo |\n| Inferencia | Una interpretación explícita que conecta evidencia | Comportamiento garantizado del sistema |\n| Prueba funcional | Entrada, ejecución y lectura posterior observadas | Cobertura de otros canales, variantes o fallos no probados |\n\nEl ID **791284** es la ficha pública de la plantilla, no un ID de bot. La versión **V3-26.10.14** se observó en una cuenta; no es una garantía de versión actual ni requisito universal."
+    },
+    {
+      "id": "section-23",
+      "title": "Fuentes precisas",
+      "content_markdown": "### Plantilla y configuración\n\n- [Ficha oficial Ecommerce v3 Pro](https://panel.lucidbot.co/store/template.php?id=791284).\n- [Instalación y adaptación de país](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55f38d4ef4744ad1a1083fd7f808cd53): secuencia escrita de instalación.\n- [Negocios a los que se dirige](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c38d69337bea428c860f987a7e705059): productos físicos; las cifras/modelos citados son históricos y no se adoptan.\n- [Registro Lucid Sales](https://panel.lucidsales.co/register).\n- [Información general](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55dc4555c24940afac7e266bad2f0691), [empresa y asistente](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=8ca75f0e5c374c60a609ca45efde8d05).\n- [Conexión con Lucid Bot](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=7acbb60be85543bfa0155a8bcd459b51): finalidad documentada, formulario técnico no descrito en la ficha.\n- [Modelo IA](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b6d9b3f6185f4bfa90bc27a684ff7785), [agrupación](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c7a11bfd54d64e0da79745b84bc697b4), [división de texto](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=efa96b0ee2234d488fe32eea378dda5d), [reglas adicionales](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=243c359422da428593982943e4e278b6).\n\n### Catálogo y compra\n\n- [Producto simple](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=807eb8bc9bac4400a3b3ec0d5655c2db): ficha, precio y medios.\n- [Bundles](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a6a691b0dc1439ea54b8e84bcd4fcff): ficha escrita y fotograma 00:35 de un video de 01:41.\n- [Variantes](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=2010bb264fa9476a9131008765f49bcd): ficha escrita y cuadros 01:38, 02:20, 02:49 de un video de 02:59. Precio por componente es una inferencia respaldada por cantidad/precios mostrados; total final/redondeo no se probaron allí.\n- [Mensajes iniciales por producto](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=5e587c7d9352466fa5f9f6f11c1985f5), [reglas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=25fda183c7694c90a5bbab1d53253e42), [preguntas frecuentes](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0843ec178f704f41a16ff1fc75bd4e5b).\n- [Shopify: documentación oficial](https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot), publicada en 2024; contrastar controles actuales. El enlace fue aportado con lectura verificada durante esta preparación; el extractor de este paquete no pudo abrirlo. La [ficha oficial de la app](https://apps.shopify.com/lucid-bot?locale=es) sí se consultó directamente.\n- [Hoko](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=eff72b8770fe4e75b95a1598eb5f77e9): pasos escritos revisados adicionalmente; no demostración de sincronización de variantes/stock.\n\n### CRM, canal y postventa\n\n- [CRM](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=6a7c0f9638274ff08031baf8c8990b90): áreas y estados descritos, no evidencia de que cada automatismo opere en cualquier cuenta.\n- [Gestión de pedidos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=34b2c75a81e34c1d8081fcc6cc9f4b88), [pagos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b4c358ad841d448f89ed0bdbb7ae59de), [políticas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=52028d7477a048c2a7043c4cd25e081e), [postventa](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a9cbca0efba4471d8c418d4a7aee0adb).\n- [Notificaciones](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a81c6b6dd6c241cfb15ac1c0a722375f), [plantillas WhatsApp](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=fd27e057b4c34dc9a4c6bfd5c599456e), [mapeo de plantillas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a4849cc11a147aab6d8ba6c45e2f53f). La última ficha carece de instrucciones operativas en el registro.\n- [Anuncios/productos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=07390602db684de786f3dc4694fe10d6), [eventos de compra](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=ac0ba76237574f2cbf41e2699b305ab6): conexión descrita; evento y atribución reales requieren pruebas."
+    },
+    {
+      "id": "section-24",
+      "title": "Pendientes explícitos",
+      "content_markdown": "Persisten como verificación por implementación: controles actuales de vinculación Bot/Sales y canal; mapeo técnico de plantillas; comportamiento vigente de redondeo; relación física de inventario/reservas; puente completo landing → pedido → V3 → mensaje; devoluciones/garantías y eventos de Ads de cada negocio. Los procedimientos diseñados en este paquete se prueban al ejecutarlos; redactarlos o validar un JSON local no los convierte en pruebas de producción."
+    }
+  ],
+  "procedures": {
+    "shopify_order_bridge": {
+      "evidence": "Documentación oficial; confirmar controles y ejecución en la cuenta destino.",
+      "steps": [
+        "Abrir la app Lucid Bot en Shopify y Settings",
+        "Sincronizar productos",
+        "Introducir clave del bot en campo seguro",
+        "Connect to Lucid Bot & Refresh flows",
+        "Elegir flujo de confirmación V3 del destino",
+        "Habilitar Sync Orders y Save",
+        "Comprobar teléfono y resultado en Orders antes de reintentar"
+      ],
+      "not_proven_by_installation": true
+    },
+    "implementation_reference": "Esta referencia distingue hechos observados de comprobaciones necesarias. Su evidencia y enlaces están en [evidence.md](evidence.md). La secuencia siguiente es una guía de implementación; no afirma que los controles de cada cuenta o versión sean idénticos.\n\n## Instalación e identidad\n\n- **Escrito en la ficha de instalación:** Store de Lucid Bot → Ecommerce v3 Pro → Install → seleccionar el bot → Install del destino. Para otro país, la ficha indica instalar primero V3 y después la adaptación de país sobre el mismo bot. Comprobar disponibilidad y compatibilidad actual antes de ejecutarlo.\n- **Observado en una cuenta:** carpeta LucidSales (V3 Pro), versión visible V3-26.10.14 y flujos principales existentes. Este hallazgo demuestra que una instalación existente se debe inspeccionar, no reinstalar por defecto. No es la versión mínima exigida por esta skill.\n- **Pendiente por cuenta:** tienda/bot exactos, permisos, canal y vinculación. Lucid Bot y Lucid Sales son productos distintos. Account ID, ID de bot, contacto, WABA y token tampoco se intercambian.\n- La ficha de conexión Lucid Bot ↔ Lucid Sales describe el resultado, pero su copia escrita no contiene el formulario técnico. Inspeccionar la interfaz autorizada o el video correspondiente; no inventar un token, endpoint ni una secuencia de clics.\n\n## Configuración comercial e IA\n\nCompletar empresa, descripción, dirección comercial, contacto y nombre del asistente. Configurar métodos reales de pago, políticas, preguntas frecuentes generales y postventa. En Lucid Sales → Lucid Bot → Modelo IA se documenta el acceso al comparativo y selección del modelo; comprobar información vigente, saldo y comportamiento efectivo antes de escoger. No reutilizar límites ni recomendaciones numéricas del curso.\n\nLas reglas adicionales complementan a la plantilla. Antes de modificar contratos internos, localizar qué agente responde, qué herramientas tiene y qué flujos ejecutan. Separar generación de texto del envío y de la creación del pedido. Las funciones IA necesitan vínculo real al agente, parámetros y ruta de éxito/fallo.\n\nAgrupar entradas y dividir salidas son ajustes diferentes. Probar una ráfaga producto/talla/ciudad, una corrección posterior y una conversación nueva para comprobar limpieza y conservación del contexto. Si se usa contenido dinámico, preservar acciones y campos al dividir el texto. La detección «contiene una llave» no valida JSON.\n\n## Catálogo, packs y medios\n\nOrden de revisión: catálogo existente → identidad por variante → precio/moneda → ofertas vendibles → proveedor/stock → medios → reglas conversacionales. No crear productos duplicados para remediar una coincidencia de nombre incompleta.\n\nSeparar atributos independientes: familia, material, diseño, color, talla y referencia. «Unicolor» no decide si una prenda es algodón o licra. La imagen permite proponer una referencia visible; la composición, el SKU, el precio y la existencia provienen de la ficha verificada.\n\nMantener una tabla privada con identificadores del origen y destino. Un producto comercial por pack puede representar varios componentes; no copiar su identificador como si fuera una referencia de una prenda. Si una unidad de inventario contiene tres pares, una oferta de seis pares consume dos unidades de esa referencia, cuando ese modelo de inventario esté confirmado.\n\n### Semántica del precio\n\nLa revisión de fotogramas registra dos configuraciones históricas distintas:\n\n| Interfaz del curso | Observación | Límite |\n|---|---|---|\n| Bundle de producto simple, 00:35 | Cantidad 2 y precio exterior 140.000 | No se observó un checkout guardado |\n| Bundle de variantes, 02:20 y 02:49 | Cantidad 2, oferta nominal 120.000, precios de variantes 60.000 | Sustenta precio por componente en ese administrador; versión actual y redondeo por comprobar |\n\nPor tanto, no ingresar el total de un pack en un campo unitario sin verificar cómo lo consume la versión actual. Comparar cantidad comercial, composición, precio persistido, total mostrado y total finalmente creado. Si dividir el total no produce un decimal admitido, documentar la discrepancia; no cambiar el precio comercial ni presentar un total aproximado como exacto.\n\nUn SKU puede estar repetido entre bundles del mismo componente en una plataforma, pero el manifiesto local guarda cada componente una sola vez y lo referencia desde varias ofertas. [catalog-contract.md](catalog-contract.md) describe esa normalización; no implica que Lucid imponga unicidad global de SKU.\n\n### Disponibilidad y fotografías\n\nSeparar `desconocida`, `verificada` y `asumida por política explícita`. No fabricar cantidades físicas. Permitir vender sin seguimiento de inventario no sincroniza almacenes. Verificar fecha, fuente, almacén y reserva antes de prometer stock comprobado.\n\nRelacionar imagen de conjunto, individual y detalle con la referencia y material autorizados. Las imágenes generadas deben ser fieles y revisadas; no inventar textura, composición o diseño que el producto no tenga. Nombrar cada archivo de forma identificable, revisar recortes y texto alternativo y comprobar su presentación en el canal. Límites de galería se consultan en la interfaz actual; el límite observado en una cuenta no es universal.\n\n## Canales, entrada y notificaciones\n\nInspeccionar Ajustes → Canales → WhatsApp en el bot destino. La ficha documenta Gestionar → Enlaces útiles → Plantilla de Mensaje; el alta del canal, requisitos de Meta y elegibilidad concreta deben verificarse en la cuenta. Conexión, entrada al Inbox, arranque del flujo y respuesta son comprobaciones separadas.\n\nLa creación histórica de plantillas también se accede desde el Administrador de WhatsApp. Elegir cuenta, nombre, idioma, categoría vigente, encabezado, cuerpo, ejemplos de variables y botones pertinentes. Consultar estado y sincronizar en Lucid si hace falta. No prometer plazo de aprobación ni usar categorías históricas como reglas actuales.\n\nEl cuerpo revisado de la lección «Mapeo de plantillas» solo contiene el título: su secuencia técnica está **pendiente de verificar**. En la implementación, observar el bloque correspondiente, vincular cada variable a campos existentes y enviar una prueba autorizada al destinatario controlado. Una muestra para aprobación no es el valor real del contacto. Un aviso de Inbox, una alerta de WhatsApp y un mensaje al cliente tienen destinos distintos.\n\n## Pedidos y puente de landing\n\nFlujos observados en una cuenta: `Flujo Principal - LucidSales` y `Confirmacion landing - LucidSales/Shopify/LandingPage`. También se observó una selección del flujo de confirmación en Lucid Sales. No copiar IDs de otro bot: resolver el flujo que realmente pertenece al destino.\n\nLa conexión Shopify mostraba estado conectado y opción Importar productos. La app estaba instalada, pero su panel incrustado no cargaba los controles. No se verificaron el interruptor de sincronización de pedidos ni el evento hacia V3. **Instalar, importar, leer pedidos y recibir un webhook son operaciones distintas.**\n\n**Documentación oficial, no prueba de la cuenta:** abrir la app Lucid Bot en Shopify, entrar en Settings, sincronizar productos, introducir la clave del bot en el campo seguro, actualizar conexión/flujos, seleccionar el flujo, habilitar Sync Orders y guardar. El pedido necesita teléfono; Orders permite revisar resultado y reintento. [Guía oficial Shopify](https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot). La [ficha de la app](https://apps.shopify.com/lucid-bot?locale=es) confirma transferencia de pedidos, ejecución de flujo y consulta de estado. La selección del flujo V3 correcto y su comportamiento se verifican en el destino.\n\nProcedimiento de aceptación del puente, aún no una receta de endpoints:\n\n1. Identificar dónde nace el pedido de la landing, su ID persistente y el total/estado real.\n2. Observar la integración y evento soportados en esa versión. Registrar campos recibidos y errores sin exponer datos personales en el repositorio.\n3. Mapear pedido, contacto, moneda, líneas, variante, cantidad de packs y composición. Diferenciar teléfono del canal de teléfono de entrega.\n4. Resolver el flujo de confirmación y canal adecuados. Evitar crear otra orden cuando ya existe una del origen.\n5. Correlacionar por tienda/origen/ID de pedido. Comprobar que la protección contra duplicados funciona también con eventos repetidos o concurrentes; una etiqueta o una lectura previa no demuestra exclusión mutua.\n6. Ejecutar una compra controlada, verificar el pedido en origen, el evento, campos y oportunidad destino, la respuesta del bot y los importes. Mantener despacho/pago real dentro del alcance autorizado.\n7. Repetir el mismo evento y una actualización del pedido. Verificar ausencia de pedido, cobro o mensaje duplicado no deseado.\n\nSi faltan canal, landing o acceso al panel, entregar catálogo/configuración preparados y nombrar el puente pendiente. No sustituirlo por un enlace `wa.me` y llamarlo sincronización de compras.\n\n## CRM, pago, garantías y humano\n\nLa ficha CRM describe áreas de leads, carritos, pedidos de chat/landing, logística, garantías, novedades y pagos. Sus automatismos son afirmaciones del curso hasta observar cada transición en el bot destino. Caliente no significa comprador; recuperar un carrito no se atribuye sin pedido/correlación comprobados.\n\nEstados de control documentados: pendiente de confirmación, error al subir, corregido por subir y subido a Lucid Sales. En pagos: esperando comprobante, recibido y confirmado. Aplicar el estado según el hecho verificado. No reintentar una escritura incierta sin consultar si la orden ya existe.\n\nPara garantías: identificar pedido/producto y motivo, guardar evidencia pertinente, abrir el caso y asignar responsable. El plazo y remedio salen de la política vigente del negocio, no de ejemplos de clase. La ficha muestra Garantía → En procesamiento → Resuelta, con gestión humana; no configurar aprobación automática porque una IA reconozca la palabra.\n\nTransferir al humano, asignar asesor, detener seguimientos y enviar aviso son acciones diferentes. Probarlas y el retorno al bot. Después de la intervención humana, reconciliar datos estructurados y resumen pertinente para no recuperar una selección antigua.\n\n## Integraciones opcionales\n\nEl texto de la lección Hoko observado documenta Ajustes → Tienda → Integraciones → Hoko → credenciales en su interfaz → Conectar; después Productos → Editar producto → Integración seleccionada → Hoko → Seleccione el producto. No demuestra mapeo por variante, dirección/frecuencia de stock ni envío automático. Usar solo si el usuario eligió Hoko y la correspondencia real es comprobable.\n\nOtras integraciones presentes en el índice no se convierten en pasos conocidos por su título. Ads requiere vínculo real anuncio/producto; eventos de compra exigen un criterio de venta comprobado y deduplicación. No activar campañas o envíos por el solo hecho de configurar el catálogo.\n"
+  },
+  "skill": {
+    "name": "lucid-sales-v3",
+    "instructions_markdown": "---\nname: lucid-sales-v3\ndescription: Configurar, auditar y probar Ecommerce v3 Pro de Lucid Bot con Lucid Sales para vender productos físicos, incluyendo catálogo, packs, variantes y confirmación de pedidos. Aplicar a esa plantilla; para un bot general de servicios o reservas usar el flujo solicitado, sin imponer V3.\n---\n\n# Ecommerce V3 con catálogo verificable\n\nEntregar una configuración operativa o una auditoría precisa de Ecommerce v3 Pro, con pruebas por recorrido. La plantilla observada en el material es **Ecommerce v3 Pro - LucidSales**, ficha oficial `791284`. No confundir su nombre con el plan comercial de una cuenta.\n\n## Preparar el trabajo\n\nRecuperar la cuenta/tienda/bot y autorizaciones ya disponibles. Identificar si la plantilla está instalada antes de instalar o reconectar. Pedir únicamente el dato que realmente falta; una instrucción de configurar el bot no autoriza campañas, compras ni despachos ajenos al alcance.\n\nEntradas necesarias: país/moneda, canal destino, catálogo autorizado, materiales/variantes, cantidades de pack, precios totales, fuente y política de disponibilidad, medios permitidos, pagos, envíos, garantías, responsable humano y origen del pedido. No deducir referencias de proveedor ni material a partir de una foto.\n\nLeer [procedimiento](references/implementation.md) para instalación, configuración o integración. Leer [evidencia y límites](references/evidence.md) al elegir la plantilla o cuando un paso del curso parezca describir la interfaz actual. Para catálogo, leer [contrato local](references/catalog-contract.md). Para puesta en marcha, usar [pruebas de aceptación](references/acceptance.md).\n\n## Flujo de implementación\n\n1. Registrar estado previo del bot correcto: plantilla, versión visible, flujos activos, canal, tienda y automatizaciones que compiten. Conservar instalaciones existentes válidas.\n2. Completar la relación Lucid Bot ↔ Lucid Sales y comprobar persistencia. El material confirma la relación, pero no documenta todos sus controles técnicos; observarlos antes de indicar clics o credenciales concretas.\n3. Configurar empresa, asistente, reglas generales, pagos y postventa. Separar parámetros del proveedor IA del agente, sus herramientas y el flujo que realmente ejecuta una operación.\n4. Cotejar producto → variante → oferta/pack → referencia externa. SKU, ID de producto e ID de variante son objetos distintos. Conservar texto y ceros iniciales de códigos. Las variantes pueden diferir en material, talla, color, diseño y precio.\n5. Configurar bundles con cantidad y precio coherentes. La evidencia histórica diferencia precio exterior del bundle simple y precio unitario en el administrador de variantes; no trasladar uno al otro sin comprobar total en la interfaz efectiva. Guardar y reabrir; después verificar la cotización/pedido controlado.\n6. Vincular imágenes y reglas por producto. Ante una referencia ambigua, conservar la preferencia y aclarar o derivar; no sustituir por un SKU supuesto. Disponibilidad manual o asumida debe identificarse como tal, nunca como sincronización física comprobada.\n7. Revisar entrada a V3, IA, derivación humana y seguimientos instalados. No añadir una bienvenida genérica que duplique o reinicie la conversación de la plantilla. Probar mensajes fragmentados, correcciones y salida a humano.\n8. Configurar CRM, garantías, pagos y notificaciones según el hecho que cada estado representa. Un comprobante recibido no confirma pago. Una respuesta del asistente no acredita un pedido. Mover una tarjeta no prueba la ejecución externa.\n9. Para compra landing → V3, verificar cada eslabón: pedido persistido, evento recibido, correspondencia del catálogo, correlación de pedido/contacto, flujo destino, canal elegible y respuesta observada. Una app instalada, un interruptor activo o importar productos no prueban esta cadena.\n10. Ejecutar casos normal, negativo y repetido; revisar el objeto real antes de reintentar una creación incierta. Conservar evidencia mínima, sin secretos ni datos personales innecesarios.\n\n## Validación local útil\n\nEl validador incluido revisa **un manifiesto propio**, no un formato de importación ni una API de Lucid. No se conecta a cuentas.\n\n```sh\npython3 scripts/validate_catalog.py assets/catalog-fictional.json\npython3 -m unittest discover -s scripts -p 'test_*.py'\n```\n\nComprueba referencias internas, combinaciones duplicadas, cantidades, conversión entre unidades de inventario y pares/prendas, composición de packs, precio unitario frente a total y relaciones de upsell. Usa `Decimal`, sin redondear silenciosamente un desacuerdo. Sustituir el ejemplo ficticio por datos privados autorizados fuera del repositorio público. Un resultado correcto no demuestra stock, IDs externos, configuración guardada ni funcionamiento del bot.\n\n## Salida requerida\n\nEntregar estado por componente: **diseñado / configurado / probado / activo**, fuente de catálogo y disponibilidad, cambios efectuados, pruebas con entradas y resultados observados, errores pendientes y próximo paso concreto. Para una integración incompleta, nombrar el eslabón faltante; no declarar «solo falta el número» si tampoco se verificó el puente de pedidos.\n\nSeparar evidencia histórica, lectura actual, inferencia y prueba. El registro Skool disponible contiene **74 lecciones indexadas y 31 fichas escritas revisadas**, además de fotogramas puntuales de dos lecciones; no son 74 videos estudiados. Lucid Academy es otra colección de 20 grabaciones. No republicar sus transcripciones, grabaciones, claves o ejemplos con datos privados.\n"
+  },
+  "references": {
+    "evidence": "## Cobertura real del paquete\n\nEl material base Skool, «Plantilla de Ecommerce con LucidBot y Lucid Sales», tenía **74 lecciones en el índice** y **31 fichas escritas revisadas** en el registro consultado. Algunas fichas solo contienen su título; no acreditan un procedimiento. La revisión adicional de dos lecciones de bundles/variantes contrastó fotogramas seleccionados, no videos completos ni audio transcrito. Este paquete no afirma haber estudiado los 74 videos.\n\n**Lucid Academy es otra formación:** 20 grabaciones estudiadas mediante transcripciones completas y pantallas seleccionadas según su registro consolidado. No es reproducción continua de todos los videos y no aumenta la cobertura de Skool. Los conceptos generales aplicados aquí proceden principalmente de clases 1–8 (datos, canal, flujos, secuencias, CRM, garantías), 9–11 (agentes, herramientas, visión y contexto), 13–18 (operaciones externas, validación, atención humana y errores).\n\nLas observaciones de implementación usadas para detectar errores se han abstraído. No se incluyen identidades de tiendas/clientes, contactos, cantidades de stock, claves, capturas privadas, identificadores de bots/productos ni archivos del curso. Las cifras, productos y códigos del ejemplo ejecutable son ficticios.\n\n## Cuatro niveles que no se deben mezclar\n\n| Nivel | Qué permite afirmar | Qué no acredita |\n|---|---|---|\n| Documento del proveedor | El procedimiento o capacidad descritos por esa fuente | Vigencia exacta de todos los controles de una cuenta |\n| Pantalla observada | El control, valor o estado visible en esa revisión | Resultado externo de guardarlo o activarlo |\n| Inferencia | Una interpretación explícita que conecta evidencia | Comportamiento garantizado del sistema |\n| Prueba funcional | Entrada, ejecución y lectura posterior observadas | Cobertura de otros canales, variantes o fallos no probados |\n\nEl ID **791284** es la ficha pública de la plantilla, no un ID de bot. La versión **V3-26.10.14** se observó en una cuenta; no es una garantía de versión actual ni requisito universal.\n\n## Fuentes precisas\n\n### Plantilla y configuración\n\n- [Ficha oficial Ecommerce v3 Pro](https://panel.lucidbot.co/store/template.php?id=791284).\n- [Instalación y adaptación de país](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55f38d4ef4744ad1a1083fd7f808cd53): secuencia escrita de instalación.\n- [Negocios a los que se dirige](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c38d69337bea428c860f987a7e705059): productos físicos; las cifras/modelos citados son históricos y no se adoptan.\n- [Registro Lucid Sales](https://panel.lucidsales.co/register).\n- [Información general](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55dc4555c24940afac7e266bad2f0691), [empresa y asistente](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=8ca75f0e5c374c60a609ca45efde8d05).\n- [Conexión con Lucid Bot](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=7acbb60be85543bfa0155a8bcd459b51): finalidad documentada, formulario técnico no descrito en la ficha.\n- [Modelo IA](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b6d9b3f6185f4bfa90bc27a684ff7785), [agrupación](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c7a11bfd54d64e0da79745b84bc697b4), [división de texto](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=efa96b0ee2234d488fe32eea378dda5d), [reglas adicionales](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=243c359422da428593982943e4e278b6).\n\n### Catálogo y compra\n\n- [Producto simple](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=807eb8bc9bac4400a3b3ec0d5655c2db): ficha, precio y medios.\n- [Bundles](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a6a691b0dc1439ea54b8e84bcd4fcff): ficha escrita y fotograma 00:35 de un video de 01:41.\n- [Variantes](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=2010bb264fa9476a9131008765f49bcd): ficha escrita y cuadros 01:38, 02:20, 02:49 de un video de 02:59. Precio por componente es una inferencia respaldada por cantidad/precios mostrados; total final/redondeo no se probaron allí.\n- [Mensajes iniciales por producto](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=5e587c7d9352466fa5f9f6f11c1985f5), [reglas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=25fda183c7694c90a5bbab1d53253e42), [preguntas frecuentes](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0843ec178f704f41a16ff1fc75bd4e5b).\n- [Shopify: documentación oficial](https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot), publicada en 2024; contrastar controles actuales. El enlace fue aportado con lectura verificada durante esta preparación; el extractor de este paquete no pudo abrirlo. La [ficha oficial de la app](https://apps.shopify.com/lucid-bot?locale=es) sí se consultó directamente.\n- [Hoko](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=eff72b8770fe4e75b95a1598eb5f77e9): pasos escritos revisados adicionalmente; no demostración de sincronización de variantes/stock.\n\n### CRM, canal y postventa\n\n- [CRM](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=6a7c0f9638274ff08031baf8c8990b90): áreas y estados descritos, no evidencia de que cada automatismo opere en cualquier cuenta.\n- [Gestión de pedidos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=34b2c75a81e34c1d8081fcc6cc9f4b88), [pagos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b4c358ad841d448f89ed0bdbb7ae59de), [políticas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=52028d7477a048c2a7043c4cd25e081e), [postventa](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a9cbca0efba4471d8c418d4a7aee0adb).\n- [Notificaciones](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a81c6b6dd6c241cfb15ac1c0a722375f), [plantillas WhatsApp](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=fd27e057b4c34dc9a4c6bfd5c599456e), [mapeo de plantillas](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a4849cc11a147aab6d8ba6c45e2f53f). La última ficha carece de instrucciones operativas en el registro.\n- [Anuncios/productos](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=07390602db684de786f3dc4694fe10d6), [eventos de compra](https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=ac0ba76237574f2cbf41e2699b305ab6): conexión descrita; evento y atribución reales requieren pruebas.\n\n## Pendientes explícitos\n\nPersisten como verificación por implementación: controles actuales de vinculación Bot/Sales y canal; mapeo técnico de plantillas; comportamiento vigente de redondeo; relación física de inventario/reservas; puente completo landing → pedido → V3 → mensaje; devoluciones/garantías y eventos de Ads de cada negocio. Los procedimientos diseñados en este paquete se prueban al ejecutarlos; redactarlos o validar un JSON local no los convierte en pruebas de producción.\n",
+    "catalog_contract": "`scripts/validate_catalog.py` es una comprobación offline. **Este JSON no es un payload ni un importador de Lucid/Shopify/Hoko.** Los nombres siguientes son propios de esta herramienta, no campos nativos descubiertos en esas plataformas.\n\nEjemplo completo: [assets/catalog-fictional.json](../assets/catalog-fictional.json). Todos sus datos, nombres, códigos, precios y cantidades son ficticios. No contiene contactos ni referencias externas reales.\n\n## Estructura\n\n| Campo | Tipo y significado |\n|---|---|\n| `schema_version` | Entero 1 |\n| `currency` | Texto de tres letras mayúsculas; una moneda por manifiesto |\n| `products` | Productos lógicos y sus componentes únicos |\n| `product.id/name/item_unit` | Identidad propia, nombre y unidad física: por ejemplo prenda o par |\n| `sell_mode` | `packs_only` o `units_and_packs`; es una decisión comercial de entrada |\n| `allowed_quantities` | Cantidades de artículos permitidas por oferta; no obliga a crear todas las combinaciones |\n| `variants` | `id`, `sku` como texto, `options` de texto, `inventory_unit_size`, `availability` |\n| `inventory_unit_size` | Número de artículos físicos en una unidad indivisible del inventario de ese componente |\n| `availability` | `unknown`, `verified`, `assumed`; el script no comprueba que la declaración sea cierta |\n| `offers` | Ofertas comerciales: producto, variantes elegibles, cantidad por pack y precio |\n| `allow_mixed` | Permite varias variantes en la misma composición |\n| `same_options` | Atributos que deben coincidir entre las variantes elegidas, como material/diseño |\n| `price_mode` | `pack_total` o `per_component`; describe el campo que se está auditando |\n| `price_amount` | Decimal como cadena; precio del pack o del componente según el modo |\n| `advertised_pack_total` | Total comercial autorizado de un pack, como cadena decimal |\n| `upsells` | Producto de origen y oferta adicional existente; `optional: true` |\n| `quotes` | Oferta, número de packs, variantes/cantidades físicas y total cotizado |\n\nUna variante normalizada se guarda una vez; varias ofertas pueden referenciarla. Por eso duplicar su SKU en este manifiesto es un error. Esto no prohíbe que una plataforma repita una referencia dentro de administradores diferentes de bundles.\n\nSi los precios dependen de la variante, dividir las ofertas/grupos de precio en el manifiesto. La versión 1 usa un precio uniforme por oferta; no representa reglas arbitrarias de precio mixto, envío, impuestos, descuentos acumulados ni multicurrency. Validar esos conceptos en el checkout real con su contrato específico.\n\n## Cálculos\n\nPara `per_component`: `price_amount × items_per_pack = advertised_pack_total`. Para `pack_total`: ambos importes deben coincidir. Se usa aritmética decimal exacta, sin tolerancia ni redondeo automático.\n\nEn una cotización: suma de cantidades seleccionadas = artículos por pack × número de packs. El total es precio por pack × número de packs. Si una referencia almacena tres pares indivisibles, la cantidad seleccionada debe ser múltiplo de tres. «Seis pares» no se convierte en «seis paquetes de tres pares».\n\n## Ejecutar y entender el resultado\n\nDesde la carpeta de la skill:\n\n```sh\npython3 scripts/validate_catalog.py assets/catalog-fictional.json\npython3 -m unittest discover -s scripts -p 'test_*.py'\n```\n\nSalida JSON: `ok`, `errors`, `warnings`, `counts`, `scope`. Códigos de proceso: 0 coherente, 1 errores de contenido, 2 archivo/JSON ilegible. El ejemplo coherente tiene 2 productos, 4 componentes y 5 ofertas; muestra avisos de stock no verificado porque sus existencias son desconocidas.\n\nErrores como `pack_total_mismatch`, `composition_quantity`, `variant_wrong_product`, `incompatible_options` o `fractional_inventory_unit` identifican el desacuerdo concreto. Corregir los datos/autorización o el mapeo, no ocultar el error con un dato ficticio. Precio correcto en JSON no demuestra que se haya guardado igual en Lucid.\n\nEl validador no accede a internet, modifica archivos de entrada, valida titularidad de códigos, prueba fotos, ejecuta IA, confirma stock ni crea un pedido. Ejecutarlo con datos privados requiere conservar esos archivos fuera de la publicación pública.\n",
+    "acceptance": "Cada fila empieza **pendiente**. Guardar por ejecución: entrada, resultado esperado, respuesta real, campos pertinentes, referencia del objeto comprobado, fecha/canal y resultado. Conservar los identificadores y datos personales en el registro privado del proyecto, nunca en el repositorio público.\n\n| Caso | Comprobación que decide el resultado |\n|---|---|\n| Saludo nuevo y contacto existente | Una sola entrada al vendedor; contexto conservado cuando corresponde |\n| Producto por nombre y cambio a otro | Catálogo/reglas/medios del producto nuevo; no arrastre de selección antigua |\n| Algodón frente a licra; talla/color/referencia | Coincide la identidad estructurada; no deducción solo visual |\n| Pack permitido y cantidad no ofrecida | Total y composición exactos; no venta individual si solo se ofrecen packs |\n| Precio no divisible entre componentes | Total persistido y total del pedido coinciden; discrepancia registrada, sin redondeo supuesto |\n| Upsell rechazado/aceptado | Rechazo no agrega línea; aceptación suma oferta/cantidad correctas |\n| Agotado, desconocido y disponibilidad manual | Tres respuestas distintas; no presentar dato asumido como inventario en tiempo real |\n| Imagen conocida y ambigua | Foto correcta; aclaración antes de asignar referencia incierta |\n| Varios mensajes seguidos, pregunta y corrección | Agrupación no pierde cambio, no duplica salida, conserva datos confirmados |\n| Dato de entrega incompleto | Pide solo faltante; no crea operación incompleta ni confirma envío |\n| Pedido creado en landing | ID de origen correlacionado, flujo correcto, mensaje observado en destino |\n| Mismo evento dos veces | No duplica pedido ni acciones comerciales; comprobar protección real |\n| Timeout después de crear pedido | Consulta antes de reintentar; no trata incertidumbre como fallo definitivo |\n| Comprobante de prueba recibido | Permanece pendiente hasta validación efectiva; no marca pagado por imagen |\n| Petición de garantía | Caso ligado a pedido/producto y responsable; política real, sin aprobación inventada |\n| Humano, baja y retorno al bot | Cambia atención/asignación, detiene rutas incompatibles, retoma datos actuales |\n| Notificación interna | Llega al responsable correcto; cliente no recibe información interna |\n| Error de IA/integración | Salida controlada; error no se interpreta como producto inexistente o stock cero |\n\n## Ejemplo normal — diseñado, no ejecutado en Lucid\n\nUna tienda ficticia vende una oferta de seis prendas de algodón por EUR 42.00. El cliente elige tres negras M y tres azules L dentro de esa oferta. La suma es seis; ambas variantes comparten material y diseño permitidos. Declina las medias. El resumen conserva producto, composición, total y entrega. Después de confirmación, se verifica una sola orden y se informa su estado real. El validador local incluye un ejemplo equivalente, pero no envía mensajes ni crea la orden.\n\n## Ejemplo de error — reproducido localmente\n\nUna oferta declara seis artículos a EUR 10.00 total y precio unitario EUR 1.67. El cálculo da EUR 10.02. El validador devuelve `pack_total_mismatch`; no lo corrige ni aprueba automáticamente. Para la cuenta real, revisar semántica y precisión del campo, corregir la configuración permitida y volver a probar el total del pedido. No modificar el precio autorizado solo para que la división cuadre.\n\n## Formato de cierre\n\n```text\nAlcance y cuenta destino: registro privado\nPlantilla y versión observadas:\nCatálogo: diseñado / configurado / probado\nFuente de disponibilidad: verificada / desconocida / política manual explícita\nCanal: no conectado / conectado / recepción y envío comprobados\nPuente de pedidos: diseñado / configurado / probado\nIA, humano, CRM y avisos: estado y evidencia por función\nCasos ejecutados y fallidos:\nActivación y alcance efectivo:\nPendiente concreto y siguiente acción:\n```\n\nNo agrupar todo como «listo» si solo se guardaron los flujos. No enviar una compra de prueba a logística real ni marcar un pedido real pagado sin pago verificado para provocar un evento. Usar un entorno o pedido de prueba separado dentro de la autorización disponible.\n"
+  },
+  "test_matrix": [
+    {
+      "case": "Saludo nuevo y contacto existente",
+      "expected_evidence": "Una sola entrada al vendedor; contexto conservado cuando corresponde",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Producto por nombre y cambio a otro",
+      "expected_evidence": "Catálogo/reglas/medios del producto nuevo; no arrastre de selección antigua",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Algodón frente a licra; talla/color/referencia",
+      "expected_evidence": "Coincide la identidad estructurada; no deducción solo visual",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Pack permitido y cantidad no ofrecida",
+      "expected_evidence": "Total y composición exactos; no venta individual si solo se ofrecen packs",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Precio no divisible entre componentes",
+      "expected_evidence": "Total persistido y total del pedido coinciden; discrepancia registrada, sin redondeo supuesto",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Upsell rechazado/aceptado",
+      "expected_evidence": "Rechazo no agrega línea; aceptación suma oferta/cantidad correctas",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Agotado, desconocido y disponibilidad manual",
+      "expected_evidence": "Tres respuestas distintas; no presentar dato asumido como inventario en tiempo real",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Imagen conocida y ambigua",
+      "expected_evidence": "Foto correcta; aclaración antes de asignar referencia incierta",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Varios mensajes seguidos, pregunta y corrección",
+      "expected_evidence": "Agrupación no pierde cambio, no duplica salida, conserva datos confirmados",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Dato de entrega incompleto",
+      "expected_evidence": "Pide solo faltante; no crea operación incompleta ni confirma envío",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Pedido creado en landing",
+      "expected_evidence": "ID de origen correlacionado, flujo correcto, mensaje observado en destino",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Mismo evento dos veces",
+      "expected_evidence": "No duplica pedido ni acciones comerciales; comprobar protección real",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Timeout después de crear pedido",
+      "expected_evidence": "Consulta antes de reintentar; no trata incertidumbre como fallo definitivo",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Comprobante de prueba recibido",
+      "expected_evidence": "Permanece pendiente hasta validación efectiva; no marca pagado por imagen",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Petición de garantía",
+      "expected_evidence": "Caso ligado a pedido/producto y responsable; política real, sin aprobación inventada",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Humano, baja y retorno al bot",
+      "expected_evidence": "Cambia atención/asignación, detiene rutas incompatibles, retoma datos actuales",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Notificación interna",
+      "expected_evidence": "Llega al responsable correcto; cliente no recibe información interna",
+      "execution_status": "pending_in_target_account"
+    },
+    {
+      "case": "Error de IA/integración",
+      "expected_evidence": "Salida controlada; error no se interpreta como producto inexistente o stock cero",
+      "execution_status": "pending_in_target_account"
+    }
+  ],
+  "examples": {
+    "normal_catalog": {
+      "schema_version": 1,
+      "data_kind": "fictional_example_not_for_import",
+      "currency": "EUR",
+      "products": [
+        {
+          "id": "demo-boxer",
+          "name": "Bóxer de ejemplo",
+          "item_unit": "prenda",
+          "sell_mode": "packs_only",
+          "allowed_quantities": [
+            3,
+            6,
+            12
+          ],
+          "variants": [
+            {
+              "id": "demo-cotton-black-m",
+              "sku": "DEMO-COT-NEG-M",
+              "options": {
+                "material": "algodón",
+                "design": "unicolor",
+                "color": "negro",
+                "size": "M"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            },
+            {
+              "id": "demo-cotton-blue-l",
+              "sku": "DEMO-COT-AZU-L",
+              "options": {
+                "material": "algodón",
+                "design": "unicolor",
+                "color": "azul",
+                "size": "L"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            },
+            {
+              "id": "demo-lycra-black-m",
+              "sku": "DEMO-LIC-NEG-M",
+              "options": {
+                "material": "licra",
+                "design": "unicolor",
+                "color": "negro",
+                "size": "M"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "demo-socks",
+          "name": "Medias de ejemplo",
+          "item_unit": "par",
+          "sell_mode": "packs_only",
+          "allowed_quantities": [
+            3,
+            6
+          ],
+          "variants": [
+            {
+              "id": "demo-socks-black",
+              "sku": "DEMO-MED-NEG-3P",
+              "options": {
+                "color": "negro",
+                "size": "única"
+              },
+              "inventory_unit_size": 3,
+              "availability": "unknown"
+            }
+          ]
+        }
+      ],
+      "offers": [
+        {
+          "id": "demo-cotton-3",
+          "product_id": "demo-boxer",
+          "items_per_pack": 3,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-cotton-black-m",
+            "demo-cotton-blue-l"
+          ],
+          "allow_mixed": true,
+          "same_options": [
+            "material",
+            "design"
+          ],
+          "price_mode": "per_component",
+          "price_amount": "8.00",
+          "advertised_pack_total": "24.00"
+        },
+        {
+          "id": "demo-cotton-6",
+          "product_id": "demo-boxer",
+          "items_per_pack": 6,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-cotton-black-m",
+            "demo-cotton-blue-l"
+          ],
+          "allow_mixed": true,
+          "same_options": [
+            "material",
+            "design"
+          ],
+          "price_mode": "per_component",
+          "price_amount": "7.00",
+          "advertised_pack_total": "42.00"
+        },
+        {
+          "id": "demo-lycra-3",
+          "product_id": "demo-boxer",
+          "items_per_pack": 3,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-lycra-black-m"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "27.00",
+          "advertised_pack_total": "27.00"
+        },
+        {
+          "id": "demo-socks-3",
+          "product_id": "demo-socks",
+          "items_per_pack": 3,
+          "item_unit": "par",
+          "variant_ids": [
+            "demo-socks-black"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "12.00",
+          "advertised_pack_total": "12.00"
+        },
+        {
+          "id": "demo-socks-6",
+          "product_id": "demo-socks",
+          "items_per_pack": 6,
+          "item_unit": "par",
+          "variant_ids": [
+            "demo-socks-black"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "21.00",
+          "advertised_pack_total": "21.00"
+        }
+      ],
+      "upsells": [
+        {
+          "source_product_id": "demo-boxer",
+          "target_offer_id": "demo-socks-3",
+          "optional": true
+        }
+      ],
+      "quotes": [
+        {
+          "offer_id": "demo-cotton-6",
+          "pack_count": 1,
+          "selections": [
+            {
+              "variant_id": "demo-cotton-black-m",
+              "quantity": 3
+            },
+            {
+              "variant_id": "demo-cotton-blue-l",
+              "quantity": 3
+            }
+          ],
+          "quoted_total": "42.00"
+        },
+        {
+          "offer_id": "demo-socks-6",
+          "pack_count": 2,
+          "selections": [
+            {
+              "variant_id": "demo-socks-black",
+              "quantity": 12
+            }
+          ],
+          "quoted_total": "42.00"
+        }
+      ]
+    },
+    "error_catalog": {
+      "schema_version": 1,
+      "data_kind": "fictional_example_not_for_import",
+      "currency": "EUR",
+      "products": [
+        {
+          "id": "demo-boxer",
+          "name": "Bóxer de ejemplo",
+          "item_unit": "prenda",
+          "sell_mode": "packs_only",
+          "allowed_quantities": [
+            3,
+            6,
+            12
+          ],
+          "variants": [
+            {
+              "id": "demo-cotton-black-m",
+              "sku": "DEMO-COT-NEG-M",
+              "options": {
+                "material": "algodón",
+                "design": "unicolor",
+                "color": "negro",
+                "size": "M"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            },
+            {
+              "id": "demo-cotton-blue-l",
+              "sku": "DEMO-COT-AZU-L",
+              "options": {
+                "material": "algodón",
+                "design": "unicolor",
+                "color": "azul",
+                "size": "L"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            },
+            {
+              "id": "demo-lycra-black-m",
+              "sku": "DEMO-LIC-NEG-M",
+              "options": {
+                "material": "licra",
+                "design": "unicolor",
+                "color": "negro",
+                "size": "M"
+              },
+              "inventory_unit_size": 1,
+              "availability": "unknown"
+            }
+          ]
+        },
+        {
+          "id": "demo-socks",
+          "name": "Medias de ejemplo",
+          "item_unit": "par",
+          "sell_mode": "packs_only",
+          "allowed_quantities": [
+            3,
+            6
+          ],
+          "variants": [
+            {
+              "id": "demo-socks-black",
+              "sku": "DEMO-MED-NEG-3P",
+              "options": {
+                "color": "negro",
+                "size": "única"
+              },
+              "inventory_unit_size": 3,
+              "availability": "unknown"
+            }
+          ]
+        }
+      ],
+      "offers": [
+        {
+          "id": "demo-cotton-3",
+          "product_id": "demo-boxer",
+          "items_per_pack": 3,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-cotton-black-m",
+            "demo-cotton-blue-l"
+          ],
+          "allow_mixed": true,
+          "same_options": [
+            "material",
+            "design"
+          ],
+          "price_mode": "per_component",
+          "price_amount": "8.00",
+          "advertised_pack_total": "24.00"
+        },
+        {
+          "id": "demo-cotton-6",
+          "product_id": "demo-boxer",
+          "items_per_pack": 6,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-cotton-black-m",
+            "demo-cotton-blue-l"
+          ],
+          "allow_mixed": true,
+          "same_options": [
+            "material",
+            "design"
+          ],
+          "price_mode": "per_component",
+          "price_amount": "1.67",
+          "advertised_pack_total": "10.00"
+        },
+        {
+          "id": "demo-lycra-3",
+          "product_id": "demo-boxer",
+          "items_per_pack": 3,
+          "item_unit": "prenda",
+          "variant_ids": [
+            "demo-lycra-black-m"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "27.00",
+          "advertised_pack_total": "27.00"
+        },
+        {
+          "id": "demo-socks-3",
+          "product_id": "demo-socks",
+          "items_per_pack": 3,
+          "item_unit": "par",
+          "variant_ids": [
+            "demo-socks-black"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "12.00",
+          "advertised_pack_total": "12.00"
+        },
+        {
+          "id": "demo-socks-6",
+          "product_id": "demo-socks",
+          "items_per_pack": 6,
+          "item_unit": "par",
+          "variant_ids": [
+            "demo-socks-black"
+          ],
+          "allow_mixed": false,
+          "same_options": [],
+          "price_mode": "pack_total",
+          "price_amount": "21.00",
+          "advertised_pack_total": "21.00"
+        }
+      ],
+      "upsells": [
+        {
+          "source_product_id": "demo-boxer",
+          "target_offer_id": "demo-socks-3",
+          "optional": true
+        }
+      ],
+      "quotes": [
+        {
+          "offer_id": "demo-cotton-6",
+          "pack_count": 1,
+          "selections": [
+            {
+              "variant_id": "demo-cotton-black-m",
+              "quantity": 3
+            },
+            {
+              "variant_id": "demo-cotton-blue-l",
+              "quantity": 3
+            }
+          ],
+          "quoted_total": "42.00"
+        },
+        {
+          "offer_id": "demo-socks-6",
+          "pack_count": 2,
+          "selections": [
+            {
+              "variant_id": "demo-socks-black",
+              "quantity": 12
+            }
+          ],
+          "quoted_total": "42.00"
+        }
+      ]
+    },
+    "error_expected_code": "pack_total_mismatch",
+    "live_account_execution": false
+  },
+  "local_validation": {
+    "implementation": "Python 3, Decimal, sin conexión a cuentas",
+    "tests_executed": 15,
+    "tests_passed": 15,
+    "scope": "Coherencia de manifiesto y cotizaciones; no acredita operaciones externas"
+  },
+  "sources": [
+    {
+      "title": "Ficha oficial Ecommerce v3 Pro",
+      "url": "https://panel.lucidbot.co/store/template.php?id=791284"
+    },
+    {
+      "title": "Instalación y adaptación de país",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55f38d4ef4744ad1a1083fd7f808cd53"
+    },
+    {
+      "title": "Negocios a los que se dirige",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c38d69337bea428c860f987a7e705059"
+    },
+    {
+      "title": "Registro Lucid Sales",
+      "url": "https://panel.lucidsales.co/register"
+    },
+    {
+      "title": "Información general",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=55dc4555c24940afac7e266bad2f0691"
+    },
+    {
+      "title": "empresa y asistente",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=8ca75f0e5c374c60a609ca45efde8d05"
+    },
+    {
+      "title": "Conexión con Lucid Bot",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=7acbb60be85543bfa0155a8bcd459b51"
+    },
+    {
+      "title": "Modelo IA",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b6d9b3f6185f4bfa90bc27a684ff7785"
+    },
+    {
+      "title": "agrupación",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=c7a11bfd54d64e0da79745b84bc697b4"
+    },
+    {
+      "title": "división de texto",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=efa96b0ee2234d488fe32eea378dda5d"
+    },
+    {
+      "title": "reglas adicionales",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=243c359422da428593982943e4e278b6"
+    },
+    {
+      "title": "Producto simple",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=807eb8bc9bac4400a3b3ec0d5655c2db"
+    },
+    {
+      "title": "Bundles",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a6a691b0dc1439ea54b8e84bcd4fcff"
+    },
+    {
+      "title": "Variantes",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=2010bb264fa9476a9131008765f49bcd"
+    },
+    {
+      "title": "Mensajes iniciales por producto",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=5e587c7d9352466fa5f9f6f11c1985f5"
+    },
+    {
+      "title": "reglas",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=25fda183c7694c90a5bbab1d53253e42"
+    },
+    {
+      "title": "preguntas frecuentes",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0843ec178f704f41a16ff1fc75bd4e5b"
+    },
+    {
+      "title": "Shopify: documentación oficial",
+      "url": "https://ayuda.lucidbot.co/es/articles/9722085-como-conectar-lucid-bot-con-shopify-utilizando-la-aplicacion-lucid-bot"
+    },
+    {
+      "title": "ficha oficial de la app",
+      "url": "https://apps.shopify.com/lucid-bot?locale=es"
+    },
+    {
+      "title": "Hoko",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=eff72b8770fe4e75b95a1598eb5f77e9"
+    },
+    {
+      "title": "CRM",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=6a7c0f9638274ff08031baf8c8990b90"
+    },
+    {
+      "title": "Gestión de pedidos",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=34b2c75a81e34c1d8081fcc6cc9f4b88"
+    },
+    {
+      "title": "pagos",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=b4c358ad841d448f89ed0bdbb7ae59de"
+    },
+    {
+      "title": "políticas",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=52028d7477a048c2a7043c4cd25e081e"
+    },
+    {
+      "title": "postventa",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a9cbca0efba4471d8c418d4a7aee0adb"
+    },
+    {
+      "title": "Notificaciones",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=a81c6b6dd6c241cfb15ac1c0a722375f"
+    },
+    {
+      "title": "plantillas WhatsApp",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=fd27e057b4c34dc9a4c6bfd5c599456e"
+    },
+    {
+      "title": "mapeo de plantillas",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=0a4849cc11a147aab6d8ba6c45e2f53f"
+    },
+    {
+      "title": "Anuncios/productos",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=07390602db684de786f3dc4694fe10d6"
+    },
+    {
+      "title": "eventos de compra",
+      "url": "https://www.skool.com/lucidbot/classroom/2a2cc5ac?md=ac0ba76237574f2cbf41e2699b305ab6"
+    }
+  ],
+  "privacy": "Solo procedimiento general y datos ficticios; sin contactos, inventario real, credenciales, IDs privados o rutas de máquina."
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "data_kind": "fictional_example_not_for_import",
+  "currency": "EUR",
+  "products": [
+    {
+      "id": "demo-boxer",
+      "name": "Bóxer de ejemplo",
+      "item_unit": "prenda",
+      "sell_mode": "packs_only",
+      "allowed_quantities": [3, 6, 12],
+      "variants": [
+        {"id":"demo-cotton-black-m","sku":"DEMO-COT-NEG-M","options":{"material":"algodón","design":"unicolor","color":"negro","size":"M"},"inventory_unit_size":1,"availability":"unknown"},
+        {"id":"demo-cotton-blue-l","sku":"DEMO-COT-AZU-L","options":{"material":"algodón","design":"unicolor","color":"azul","size":"L"},"inventory_unit_size":1,"availability":"unknown"},
+        {"id":"demo-lycra-black-m","sku":"DEMO-LIC-NEG-M","options":{"material":"licra","design":"unicolor","color":"negro","size":"M"},"inventory_unit_size":1,"availability":"unknown"}
+      ]
+    },
+    {
+      "id":"demo-socks","name":"Medias de ejemplo","item_unit":"par","sell_mode":"packs_only","allowed_quantities":[3,6],
+      "variants":[{"id":"demo-socks-black","sku":"DEMO-MED-NEG-3P","options":{"color":"negro","size":"única"},"inventory_unit_size":3,"availability":"unknown"}]
+    }
+  ],
+  "offers": [
+    {"id":"demo-cotton-3","product_id":"demo-boxer","items_per_pack":3,"item_unit":"prenda","variant_ids":["demo-cotton-black-m","demo-cotton-blue-l"],"allow_mixed":true,"same_options":["material","design"],"price_mode":"per_component","price_amount":"8.00","advertised_pack_total":"24.00"},
+    {"id":"demo-cotton-6","product_id":"demo-boxer","items_per_pack":6,"item_unit":"prenda","variant_ids":["demo-cotton-black-m","demo-cotton-blue-l"],"allow_mixed":true,"same_options":["material","design"],"price_mode":"per_component","price_amount":"7.00","advertised_pack_total":"42.00"},
+    {"id":"demo-lycra-3","product_id":"demo-boxer","items_per_pack":3,"item_unit":"prenda","variant_ids":["demo-lycra-black-m"],"allow_mixed":false,"same_options":[],"price_mode":"pack_total","price_amount":"27.00","advertised_pack_total":"27.00"},
+    {"id":"demo-socks-3","product_id":"demo-socks","items_per_pack":3,"item_unit":"par","variant_ids":["demo-socks-black"],"allow_mixed":false,"same_options":[],"price_mode":"pack_total","price_amount":"12.00","advertised_pack_total":"12.00"},
+    {"id":"demo-socks-6","product_id":"demo-socks","items_per_pack":6,"item_unit":"par","variant_ids":["demo-socks-black"],"allow_mixed":false,"same_options":[],"price_mode":"pack_total","price_amount":"21.00","advertised_pack_total":"21.00"}
+  ],
+  "upsells":[{"source_product_id":"demo-boxer","target_offer_id":"demo-socks-3","optional":true}],
+  "quotes":[
+    {"offer_id":"demo-cotton-6","pack_count":1,"selections":[{"variant_id":"demo-cotton-black-m","quantity":3},{"variant_id":"demo-cotton-blue-l","quantity":3}],"quoted_total":"42.00"},
+    {"offer_id":"demo-socks-6","pack_count":2,"selections":[{"variant_id":"demo-socks-black","quantity":12}],"quoted_total":"42.00"}
+  ]
+}
